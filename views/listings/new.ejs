@@ -1,0 +1,94 @@
+<% layout('/layouts/boilerplate') -%>
+<div class="row mt-3">
+    <div class="col-8 offset-2">
+    <br><br>
+    <h3>List Your Item</h3>
+    <form action="/listings" method="post">
+        <div class="mb-3">
+            <label for="title" class="form-label">Item Name</label>
+            <input type="text" 
+            name="listing[title]"  
+            placeholder="What are you selling?" 
+            class="form-control"
+            required>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea type="text" 
+            name="listing[description]" 
+            placeholder="Describe your item"
+            class="form-control"
+            required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="image" class="form-label">Image Link</label>
+            <input type="text" 
+            name="listing[image]"  
+            placeholder="Add an image URL"
+            class="form-control">
+        </div>
+
+        <div class="row">
+            <div class="mb-3 col-md-4">
+                <label for="price" class="form-label">Price (₹)</label>
+                <input type="number" 
+                name="listing[price]" 
+                placeholder="100"
+                class="form-control"
+                required>
+            </div>
+            <div class="mb-3 col-md-4">
+                <label for="range" class="form-label">Range (meters)</label>
+                <input type="number" 
+                name="listing[range]" 
+                value="500"
+                min="100"
+                max="1000"
+                class="form-control"
+                required>
+            </div>
+            <div class="mb-3 col-md-4">
+                <label for="expiryDate" class="form-label">Available Until</label>
+                <input type="date" 
+                name="listing[expiryDate]" 
+                class="form-control"
+                required>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="mb-3 col-md-6">
+                <label for="sellerName" class="form-label">Your Name</label>
+                <input type="text" 
+                name="listing[sellerName]" 
+                placeholder="John Doe"
+                class="form-control"
+                required>
+            </div>
+            <div class="mb-3 col-md-6">
+                <label for="sellerContact" class="form-label">Contact Info</label>
+                <input type="text" 
+                name="listing[sellerContact]" 
+                placeholder="Email or Phone"
+                class="form-control"
+                required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="location" class="form-label">Pickup Location</label> 
+            <input type="text" 
+            name="listing[location]"
+            placeholder="Where can buyers collect the item?"
+            class="form-control"
+            required> 
+        </div>
+ 
+        <button type="submit" class="btn btn-success add-btn mt-3">List Item</button>
+        <br><br>
+    </form>
+    </div>
+</div>
+

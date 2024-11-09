@@ -1,0 +1,45 @@
+<% layout('/layouts/boilerplate') -%>
+<div class="row">
+    <div class="col-8 offset-3">
+        <h3>Item Details</h3>
+    </div>
+    <div class="card col-6 offset-3 show-card">
+        <div class="status-badge <%= listing.status %>">
+            <%= listing.status.toUpperCase() %>
+        </div>
+        <img src="<%= listing.image %>" class="card-img-top show-img" alt="item_image">
+        <div class="card-body">
+            <p class="card-text">
+                <h4><%= listing.title %></h4>
+                <p class="description"><%= listing.description %></p>
+                <div class="price-tag">₹ <%= listing.price.toLocaleString("en-IN") %></div>
+                
+                <div class="seller-info">
+                    <p><strong>Seller:</strong> <%= listing.sellerName %></p>
+                    <p><strong>Location:</strong> <%= listing.location %></p>
+                    <p><strong>Range:</strong> <%= listing.range %> meters</p>
+                    <p><strong>Available until:</strong> 
+                        <%= new Date(listing.expiryDate).toLocaleDateString() %>
+                    </p>
+                </div>
+
+                <% if(listing.status === 'available') { %>
+                    <button class="btn btn-success contact-btn" 
+                            onclick="alert('Contact: <%= listing.sellerContact %>')">
+                        Contact Seller
+                    </button>
+                <% } %>
+            </p>
+        </div>
+    </div> 
+</div>
+
+<% if(listing.status === 'available') { %>
+<div class="btns">
+    <form method="post" action="/listings/<%=listing._id%>/reserve">
+        <button class="btn btn-primary">Reserve Item</button>
+    </form>
+</div>
+<% } %>
+    
+

@@ -1,0 +1,59 @@
+<% layout('/layouts/boilerplate') -%>
+    <h1>Local Marketplace</h1>
+    
+    <div class="filter-section mb-4">
+        <form action="/listings" method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Max Price</label>
+                <input type="number" name="maxPrice" class="form-control" placeholder="Max Price">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Range (meters)</label>
+                <input type="number" name="range" class="form-control" placeholder="Distance in meters">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">Filter</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="sort-section mb-3">
+        <form action="/listings" method="GET" class="row g-3">
+            <div class="col-md-4">
+                <select name="sort" class="form-select" onchange="this.form.submit()">
+                    <option value="">Sort By...</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="date">Newest First</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
+        <% for(let listing of allListings){ %>
+            <div class="col mb-4">
+                <a href="/listings/<%=listing._id %>" class="listing-link">
+                    <div class="card">
+                        <div class="status-badge <%= listing.status %>">
+                            <%= listing.status.toUpperCase() %>
+                        </div>
+                        <img src="<%= listing.image %>"
+                         class="card-img-top" 
+                         alt="item_image"
+                         style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= listing.title %></h5>
+                            <p class="price-tag">₹ <%= listing.price.toLocaleString("en-IN") %></p>
+                            <p class="card-text">
+                                <i class="fas fa-map-marker-alt"></i> <%= listing.location %><br>
+                                <small class="text-muted">Range: <%= listing.range %>m</small>
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        <% } %>    
+    </div>
+    
