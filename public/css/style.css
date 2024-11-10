@@ -750,7 +750,7 @@ body{
 .list-items-image img {
     width: 100%;
     height: auto;
-    border-radius: 10px;
+    border-radius: 50%;
 }
 
 /* Update existing color styles */
