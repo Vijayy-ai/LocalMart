@@ -117,11 +117,15 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/chat.js"></script>
 <script>
-    const currentUserId = '<%= currentUser ? currentUser._id : null %>';
-    initChat('<%= listing._id %>');
+    const currentUserId = '<%= currentUser && currentUser._id ? currentUser._id : "null" %>';
+    const listingId = '<%= listing._id %>';
+    
+    if (currentUserId !== "null" && listingId) {
+        initChat(listingId);
+    }
 </script>
 
-<% if (listing.status === 'sold' && currentUser && currentUser._id !== listing.seller) { %>
+<% if (listing.status === 'sold' && currentUser && currentUser._id && currentUser._id !== listing.seller) { %>
     <div class="rating-section mt-4">
         <h4>Rate Your Experience</h4>
         <form action="/listings/<%= listing._id %>/rate" method="POST">

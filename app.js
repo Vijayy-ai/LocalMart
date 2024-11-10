@@ -18,6 +18,7 @@ const googleMapsClient = new Client({});
 const mapsConfig = require('./config/maps');
 const apiRoutes = require('./api/routes');
 const setupIndexes = require('./utils/setupDb');
+const multer = require('multer');
 
 const MONGO_URL = 'mongodb://127.0.0.1:27017/localmart';
 
@@ -54,6 +55,7 @@ app.use(flash());
 
 // Add flash middleware
 app.use((req, res, next) => {
+    res.locals.currentUser = req.session.user || null;
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
@@ -151,20 +153,26 @@ app.get("/listings/new", async (req,res) => {
 })
 
 // Show Route
-app.get("/listings/:id" , async (req,res) => {
+app.get("/listings/:id", async (req, res) => {
     try {
-        let {id} = req.params;
+        let { id } = req.params;
         const listing = await Listing.findById(id);
         if (!listing) {
             req.flash('error', 'Listing not found');
             return res.redirect('/listings');
         }
-        res.render("listings/show.ejs", {listing});
+        const currentUser = req.session.user || { _id: null };
+        
+        res.render("listings/show.ejs", { 
+            listing,
+            currentUser
+        });
     } catch (err) {
+        console.error('Error:', err);
         req.flash('error', 'Invalid listing ID');
         res.redirect('/listings');
     }
-})
+});
 
 // Create Route
 app.post("/listings", upload.array('image', 5), async(req, res) => {
@@ -337,12 +345,14 @@ app.use((err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         res.status(400).render('error', { 
             message: 'File upload error: ' + err.message,
-            error: err
+            error: err,
+            currentUser: req.session.user || null
         });
     } else {
         res.status(err.status || 500).render('error', { 
             message: err.message || 'Something went wrong!',
-            error: err
+            error: err,
+            currentUser: req.session.user || null
         });
     }
 });
