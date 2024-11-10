@@ -40,3 +40,6 @@ pids
 .vscode/
 *.swp
 *.swo
+
+# Uploads directory
+public/uploads/*

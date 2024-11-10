@@ -23,7 +23,7 @@ const listingSchema = new Schema({
     },
     location: {
         type: String,
-        required: true,
+        default: 'Location not specified',
         trim: true,
     },
     status: {
@@ -33,7 +33,7 @@ const listingSchema = new Schema({
     },
     expiryDate: {
         type: Date,
-        required: true
+        default: () => new Date(+new Date() + 7*24*60*60*1000) // 7 days from now
     },
     range: {
         type: Number,
@@ -43,13 +43,51 @@ const listingSchema = new Schema({
     },
     sellerName: {
         type: String,
-        required: true,
+        default: 'Anonymous',
         trim: true,
     },
     sellerContact: {
         type: String,
         trim: true,
-    }
+    },
+    images: [{
+        url: String,
+        filename: String
+    }],
+    condition: {
+        type: String,
+        enum: ['New', 'Like New', 'Good', 'Fair', 'Poor', ''],
+        default: ''
+    },
+    category: {
+        type: String,
+        enum: ['Electronics', 'Furniture', 'Clothing', 'Books', 'Home', 'Other', ''],
+        default: ''
+    },
+    tags: [String],
+    views: {
+        type: Number,
+        default: 0
+    },
+    favorites: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    bundle: {
+        isBundle: {
+            type: Boolean,
+            default: false
+        },
+        items: [String],
+        bundleDiscount: Number
+    },
+    negotiable: {
+        type: Boolean,
+        default: true
+    },
+    minAcceptablePrice: Number
+}, {
+    timestamps: true
 });
 
 const Listing = mongoose.model("Listing", listingSchema);

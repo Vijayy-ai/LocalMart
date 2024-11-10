@@ -1,18 +1,66 @@
-<nav class="navbar navbar-expand-md navbar-light bg-light border-bottom sticky-top">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="/"><i class="fa-solid fa-store"></i> LocalMart</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-          <a class="nav-link" href="/listings">Browse Items</a>
-          <a class="nav-link" href="/listings/new">Sell Item</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="fa-solid fa-store me-2"></i>
+            <span class="brand-text">LocalMart</span>
+        </a>
+        
+        <!-- Mobile Search -->
+        <div class="d-lg-none ms-auto me-2">
+            <button class="btn btn-link text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse">
+                <i class="fas fa-search"></i>
+            </button>
         </div>
-        <form class="d-flex ms-auto" action="/listings" method="GET">
-          <input class="form-control me-2" type="search" placeholder="Search items..." name="search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
-      </div>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <!-- Desktop Search -->
+            <form class="d-none d-lg-flex mx-auto nav-search-form">
+                <div class="input-group">
+                    <input class="form-control" type="search" placeholder="Search items..." name="search">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/listings">Browse</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link sell-btn" href="/listings/new">
+                        <i class="fas fa-plus-circle"></i> Sell
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                        <li><a class="dropdown-item" href="/listings/my-listings">My Listings</a></li>
+                        <li><a class="dropdown-item" href="/favorites">Favorites</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Mobile Search Collapse -->
+        <div class="collapse" id="searchCollapse">
+            <form class="container py-3">
+                <div class="input-group">
+                    <input class="form-control" type="search" placeholder="Search items..." name="search">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </nav>

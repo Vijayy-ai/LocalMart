@@ -5,11 +5,25 @@ const Listing = require("./models/listing.js");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
+const session = require('express-session');
+const flash = require('connect-flash');
+const http = require('http');
+const socketIO = require('socket.io');
+const server = http.createServer(app);
+const io = socketIO(server);
+const upload = require('./middleware/multer');
+const { cloudinary } = require('./cloudinary');
+const { Client } = require('@googlemaps/google-maps-services-js');
+const googleMapsClient = new Client({});
+const mapsConfig = require('./config/maps');
+const apiRoutes = require('./api/routes');
+const setupIndexes = require('./utils/setupDb');
 
 const MONGO_URL = 'mongodb://127.0.0.1:27017/localmart';
 
-main().then(() => {
+main().then(async () => {
     console.log("connected to Database");
+    await setupIndexes();
 }).catch(err => console.log(err));
 
 async function main() {
@@ -22,6 +36,28 @@ app.use(express.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
+
+// Add session configuration before other middleware
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
+        maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+}));
+
+// Add flash after session
+app.use(flash());
+
+// Add flash middleware
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+});
 
 // Middleware to check for expired listings
 app.use(async (req, res, next) => {
@@ -111,18 +147,68 @@ app.get("/listings/new", async (req,res) => {
 
 // Show Route
 app.get("/listings/:id" , async (req,res) => {
-    let {id} = req.params;
-    const listing = await Listing.findById(id);
-    res.render("listings/show.ejs", {listing});
+    try {
+        let {id} = req.params;
+        const listing = await Listing.findById(id);
+        if (!listing) {
+            req.flash('error', 'Listing not found');
+            return res.redirect('/listings');
+        }
+        res.render("listings/show.ejs", {listing});
+    } catch (err) {
+        req.flash('error', 'Invalid listing ID');
+        res.redirect('/listings');
+    }
 })
 
 // Create Route
-app.post("/listings", async(req,res) => {
-    // let {title, description, image , price, country , location} = req.body;
-    const newListing = new Listing(req.body.listing);
-    await newListing.save();
-    res.redirect("/listings");
-})
+app.post("/listings", upload.array('image', 5), async(req, res) => {
+    try {
+        // Create a copy of the listing data
+        const listingData = { ...req.body.listing };
+        
+        // Convert price to a positive number
+        listingData.price = Math.max(0, parseInt(listingData.price) || 0);
+
+        // Set default values
+        listingData.status = 'available';
+        if (!listingData.expiryDate) {
+            listingData.expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        }
+
+        // Handle bundle data
+        if (listingData.bundle) {
+            listingData.bundle = {
+                isBundle: listingData.bundle.isBundle === 'true',
+                items: listingData.bundle.items || [],
+                bundleDiscount: parseFloat(listingData.bundle.bundleDiscount) || 0
+            };
+        }
+
+        // Handle negotiable checkbox
+        listingData.negotiable = listingData.negotiable === 'true';
+
+        // Create new listing
+        const newListing = new Listing(listingData);
+        
+        // Handle images
+        if (req.files && req.files.length > 0) {
+            newListing.images = req.files.map(f => ({
+                url: `/uploads/${f.filename}`,
+                filename: f.filename
+            }));
+            newListing.image = `/uploads/${req.files[0].filename}`;
+        }
+
+        await newListing.save();
+        req.flash('success', 'Successfully created a new listing!');
+        res.redirect("/listings");
+    } catch (err) {
+        console.error('Error creating listing:', err);
+        req.flash('error', 'Error creating listing. Please check all fields.');
+        res.redirect("/listings/new");
+    }
+});
 
 // Edit Route
 app.get("/listings/:id/edit", async(req,res) =>{
@@ -162,3 +248,99 @@ app.delete("/listings/:id" , async(req,res) => {
 app.listen(8080, () => {
     console.log("LocalMart server is listening on port 8080");
 })
+
+// Add Socket.IO connection handling
+io.on('connection', (socket) => {
+    console.log('New client connected');
+    
+    socket.on('newListing', (listing) => {
+        io.emit('listingAdded', listing);
+    });
+    
+    socket.on('itemReserved', (listingId) => {
+        io.emit('updateStatus', { id: listingId, status: 'reserved' });
+    });
+});
+
+// Add these routes after your existing routes
+
+// Create bundle from existing items
+app.post("/listings/:id/create-bundle", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { bundleItems, bundleDiscount } = req.body;
+        
+        const listing = await Listing.findById(id);
+        listing.bundle = {
+            isBundle: true,
+            items: bundleItems,
+            bundleDiscount: bundleDiscount
+        };
+        
+        await listing.save();
+        res.redirect(`/listings/${id}`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error creating bundle");
+    }
+});
+
+// Extend listing expiry
+app.post("/listings/:id/extend", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { days } = req.body;
+        
+        const listing = await Listing.findById(id);
+        const newExpiryDate = new Date(listing.expiryDate);
+        newExpiryDate.setDate(newExpiryDate.getDate() + parseInt(days));
+        
+        listing.expiryDate = newExpiryDate;
+        await listing.save();
+        
+        res.redirect(`/listings/${id}`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error extending listing");
+    }
+});
+
+// Schedule expiry notifications
+setInterval(async () => {
+    try {
+        const nearExpiryListings = await Listing.find({
+            status: 'available',
+            expiryDate: {
+                $gt: new Date(),
+                $lt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+            }
+        });
+        
+        // Here you would typically send notifications to sellers
+        // For now, we'll just log them
+        nearExpiryListings.forEach(listing => {
+            console.log(`Listing "${listing.title}" expires soon!`);
+        });
+    } catch (err) {
+        console.error('Error checking expiry dates:', err);
+    }
+}, 60 * 60 * 1000); // Check every hour
+
+// Add this after all your routes
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    if (err instanceof multer.MulterError) {
+        res.status(400).render('error', { 
+            message: 'File upload error: ' + err.message,
+            error: err
+        });
+    } else {
+        res.status(err.status || 500).render('error', { 
+            message: err.message || 'Something went wrong!',
+            error: err
+        });
+    }
+});
+
+// Add after other middleware
+app.use('/api', apiRoutes);
