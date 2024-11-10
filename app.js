@@ -36,6 +36,11 @@ app.use(async (req, res, next) => {
     }
 });
 
+//home route 
+app.get("/", (req,res) => {
+    res.render("listings/home.ejs");
+})
+
 // Index Route with filtering
 app.get("/listings", async (req, res) => {
     try {
