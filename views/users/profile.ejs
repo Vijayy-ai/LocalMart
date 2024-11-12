@@ -1,0 +1,150 @@
+<% layout('/layouts/boilerplate') -%>
+<div class="container">
+    <div class="seller-profile">
+        <div class="profile-header">
+            <div class="profile-info">
+                <h2><%= user.username %></h2>
+                <div class="rating-summary">
+                    <div class="stars">
+                        <% for(let i = 1; i <= 5; i++) { %>
+                            <i class="fas fa-star <%= i <= user.averageRating ? 'filled' : '' %>"></i>
+                        <% } %>
+                    </div>
+                    <span>(<%= user.totalRatings %> reviews)</span>
+                </div>
+                <div class="seller-stats">
+                    <div class="stat">
+                        <i class="fas fa-box"></i>
+                        <span><%= user.activeListings %> Active Listings</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-check-circle"></i>
+                        <span><%= user.successfulDeals %> Successful Deals</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Member since <%= user.createdAt.toLocaleDateString() %></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-tabs">
+            <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#listings">Active Listings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#reviews">Reviews</a>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3">
+                <div class="tab-pane fade show active" id="listings">
+                    <div class="row">
+                        <% user.listings.forEach(listing => { %>
+                            <div class="col-md-4 mb-4">
+                                <div class="card">
+                                    <img src="<%= listing.image %>" class="card-img-top" alt="<%= listing.title %>">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><%= listing.title %></h5>
+                                        <p class="card-text">₹<%= listing.price.toLocaleString('en-IN') %></p>
+                                        <a href="/listings/<%= listing._id %>" class="btn btn-primary">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="reviews">
+                    <% user.ratings.forEach(rating => { %>
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="stars">
+                                    <% for(let i = 1; i <= 5; i++) { %>
+                                        <i class="fas fa-star <%= i <= rating.rating ? 'filled' : '' %>"></i>
+                                    <% } %>
+                                </div>
+                                <span class="review-date"><%= rating.createdAt.toLocaleDateString() %></span>
+                            </div>
+                            <p class="review-text"><%= rating.review %></p>
+                            <div class="review-footer">
+                                <span>For: <a href="/listings/<%= rating.listing._id %>"><%= rating.listing.title %></a></span>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.seller-profile {
+    padding: 20px;
+}
+
+.profile-header {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.rating-summary {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.stars {
+    color: #ffc107;
+    margin-right: 10px;
+}
+
+.stars .filled {
+    color: #ffc107;
+}
+
+.seller-stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.review-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.review-date {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.review-text {
+    margin: 10px 0;
+}
+
+.review-footer {
+    color: #666;
+    font-size: 0.9rem;
+}
+</style> 

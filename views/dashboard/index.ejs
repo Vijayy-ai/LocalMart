@@ -1,0 +1,168 @@
+<% layout('/layouts/boilerplate') -%>
+
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="dashboard-sidebar">
+        <div class="user-profile">
+            <img src="<%= user.profileImage %>" alt="<%= user.username %>" class="profile-image">
+            <h4><%= user.username %></h4>
+            <div class="user-rating">
+                <% for(let i = 1; i <= 5; i++) { %>
+                    <i class="fas fa-star <%= i <= user.reliability.score/20 ? 'filled' : '' %>"></i>
+                <% } %>
+                <span>(<%= user.ratings.length %> reviews)</span>
+            </div>
+        </div>
+        
+        <nav class="dashboard-nav">
+            <a href="/dashboard" class="active">
+                <i class="fas fa-home"></i> Overview
+            </a>
+            <a href="/dashboard/listings">
+                <i class="fas fa-list"></i> My Listings
+            </a>
+            <a href="/dashboard/transactions">
+                <i class="fas fa-exchange-alt"></i> Transactions
+            </a>
+            <a href="/dashboard/messages">
+                <i class="fas fa-envelope"></i> Messages
+                <% if (user.unreadMessages) { %>
+                    <span class="badge bg-danger"><%= user.unreadMessages %></span>
+                <% } %>
+            </a>
+            <a href="/dashboard/settings">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="stat-info">
+                    <h3><%= activeListings.length %></h3>
+                    <p>Active Listings</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>₹<%= metrics.totalEarnings.toLocaleString('en-IN') %></h3>
+                    <p>Total Earnings</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-info">
+                    <h3><%= metrics.totalViews %></h3>
+                    <p>Total Views</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <div class="stat-info">
+                    <h3><%= user.reliability.successfulDeals %></h3>
+                    <p>Successful Deals</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="dashboard-section">
+            <h2>Recent Activity</h2>
+            <div class="activity-timeline">
+                <% transactions.forEach(transaction => { %>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="<%= transaction.type === 'sale' ? 'fas fa-arrow-up' : 'fas fa-arrow-down' %>"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4><%= transaction.listing.title %></h4>
+                            <p>₹<%= transaction.amount.toLocaleString('en-IN') %></p>
+                            <small><%= moment(transaction.createdAt).fromNow() %></small>
+                        </div>
+                        <div class="activity-status">
+                            <span class="badge bg-<%= transaction.status === 'completed' ? 'success' : 'warning' %>">
+                                <%= transaction.status %>
+                            </span>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+
+        <!-- Performance Chart -->
+        <div class="dashboard-section">
+            <h2>Performance Overview</h2>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Reviews -->
+        <div class="dashboard-section">
+            <h2>Recent Reviews</h2>
+            <div class="reviews-grid">
+                <% user.ratings.slice(0, 3).forEach(rating => { %>
+                    <div class="review-card">
+                        <div class="review-header">
+                            <img src="<%= rating.reviewer.profileImage %>" alt="<%= rating.reviewer.username %>">
+                            <div>
+                                <h5><%= rating.reviewer.username %></h5>
+                                <div class="rating">
+                                    <% for(let i = 1; i <= 5; i++) { %>
+                                        <i class="fas fa-star <%= i <= rating.rating ? 'filled' : '' %>"></i>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                        <p><%= rating.review %></p>
+                        <small><%= moment(rating.createdAt).fromNow() %></small>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize performance chart
+const ctx = document.getElementById('performanceChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: <%= JSON.stringify(analytics.dates) %>,
+        datasets: [{
+            label: 'Views',
+            data: <%= JSON.stringify(analytics.views) %>,
+            borderColor: '#007bff',
+            tension: 0.4
+        }, {
+            label: 'Sales',
+            data: <%= JSON.stringify(analytics.sales) %>,
+            borderColor: '#28a745',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script> 

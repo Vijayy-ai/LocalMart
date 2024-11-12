@@ -1,0 +1,182 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    
+}
+
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+}
+
+.logo .circle {
+    width: 40px;
+    height: 40px;
+    background-color: #007bff;
+    border-radius: 50%;
+}
+
+nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+nav a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+}
+
+.signup-btn {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.signup-btn:hover {
+    background-color: #555;
+}
+
+.hero {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    font-size: 72px;
+}
+
+.hero .highlight {
+    color: #007bff;
+    
+}
+
+.hero p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.explore{
+    background-color: #007bff;
+    color: #fff;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.explore-btn {
+    background-color: #333;
+    color: #fff;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.explore-btn:hover {
+    background-color: #555;
+}
+
+.marketplace {
+    text-align: center;
+    
+}
+
+.market-image {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    
+}
+
+.market-image img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+
+.container {
+    margin-top: 20px; 
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+
+
+  .sm-heading{
+    font-size: 60px;
+    margin-bottom: 20px;
+    margin: 30px 0;
+    color: #007bff;
+  }
+  
+  button {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px ;
+    margin: 10px;
+    border-radius: 20px;
+    border-color: none;
+  }
+  
+  .buyers, .sellers {
+    margin-bottom: 40px;
+  }
+
+  .section-buyer, .section-seller{
+    margin-bottom: 40px;
+  }
+
+  .cards {
+    justify-content: space-between;
+    gap: 20px; /* Space between cards */
+  }
+  
+  .card {
+    text-align: center;
+    width: 30%; /* Makes each card take up equal width */
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f8f8f8;
+    box-sizing: border-box; /* Ensures padding does not affect width */
+  }
+  
+  .card img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+  }
+  
+  .card p {
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .sellers .card {
+    background-color: #f0f4f8;
+  }
+  

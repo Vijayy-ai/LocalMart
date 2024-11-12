@@ -1,0 +1,172 @@
+<% layout('/layouts/boilerplate') -%>
+<div class="marketplace-container">
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <div class="hero-content">
+            <h1>Find Amazing Local Deals</h1>
+            <p>Buy and sell items in your neighborhood</p>
+            <div class="search-container">
+                <input type="text" 
+                       id="searchInput" 
+                       placeholder="What are you looking for?"
+                       class="main-search">
+                <button class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="quick-filters">
+        <div class="filter-chips">
+            <button class="filter-chip active">All</button>
+            <button class="filter-chip">Electronics</button>
+            <button class="filter-chip">Furniture</button>
+            <button class="filter-chip">Fashion</button>
+            <button class="filter-chip">Books</button>
+            <button class="filter-chip">Home</button>
+        </div>
+        <div class="sort-options">
+            <select class="form-select">
+                <option>Latest First</option>
+                <option>Price: Low to High</option>
+                <option>Price: High to Low</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Featured Listings -->
+    <section class="listings-section">
+        <h2>Featured Items</h2>
+        <div class="listings-grid">
+            <% allListings.filter(l => l.status === 'available').slice(0, 4).forEach(listing => { %>
+                <div class="listing-card">
+                    <div class="listing-image">
+                        <img src="<%= listing.image %>" alt="<%= listing.title %>">
+                        <div class="listing-badges">
+                            <% if(listing.negotiable) { %>
+                                <span class="badge-negotiable">Negotiable</span>
+                            <% } %>
+                            <% if(listing.bundle?.isBundle) { %>
+                                <span class="badge-bundle">Bundle Deal</span>
+                            <% } %>
+                        </div>
+                        <button class="favorite-btn" onclick="toggleFavorite('<%= listing._id %>')">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="listing-info">
+                        <h3><%= listing.title %></h3>
+                        <div class="price">₹<%= listing.price.toLocaleString('en-IN') %></div>
+                        <div class="location">
+                            <i class="fas fa-map-marker-alt"></i> <%= listing.location %>
+                        </div>
+                        <a href="/listings/<%= listing._id %>" class="view-details">View Details</a>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </section>
+
+    <!-- Add this between Featured Items and Recently Added sections -->
+    <section class="list-items-section">
+        <div class="list-items-container">
+            <div class="list-items-content">
+                <h2>List your items<br>to sell & help others.</h2>
+                <div class="list-items-tags">
+                    <span class="tag">reduce waste</span>
+                    <span class="tag">make profits</span>
+                    <span class="tag">help society</span>
+                    <span class="tag">create an impact</span>
+                </div>
+                <a href="/listings/new" class="start-btn">Start today →</a>
+            </div>
+            <div class="list-items-image">
+                <img src="../images/img1.jpg" alt="List your items">
+            </div>
+        </div>
+    </section>
+
+    <!-- Recently Added -->
+    <section class="listings-section">
+        <h2>Recently Added</h2>
+        <div class="listings-grid">
+            <% allListings.sort((a,b) => b.createdAt - a.createdAt).slice(0, 8).forEach(listing => { %>
+                <div class="listing-card">
+                    <div class="listing-image">
+                        <img src="<%= listing.image %>" alt="<%= listing.title %>">
+                        <div class="listing-badges">
+                            <% if(listing.negotiable) { %>
+                                <span class="badge-negotiable">Negotiable</span>
+                            <% } %>
+                            <% if(listing.bundle?.isBundle) { %>
+                                <span class="badge-bundle">Bundle Deal</span>
+                            <% } %>
+                        </div>
+                        <button class="favorite-btn" onclick="toggleFavorite('<%= listing._id %>')">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="listing-info">
+                        <h3><%= listing.title %></h3>
+                        <div class="price">₹<%= listing.price.toLocaleString('en-IN') %></div>
+                        <div class="location">
+                            <i class="fas fa-map-marker-alt"></i> <%= listing.location %>
+                        </div>
+                        <div class="listing-meta">
+                            <span class="time-ago">
+                                <%= Math.floor((new Date() - new Date(listing.createdAt)) / (1000 * 60)) %> mins ago
+                            </span>
+                            <% if(listing.status !== 'available') { %>
+                                <span class="status-badge <%= listing.status %>">
+                                    <%= listing.status.toUpperCase() %>
+                                </span>
+                            <% } %>
+                        </div>
+                        <a href="/listings/<%= listing._id %>" class="view-details">View Details</a>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </section>
+
+    <!-- No Results Message -->
+    <% if(allListings.length === 0) { %>
+        <div class="no-results">
+            <img src="/images/no-results.svg" alt="No results found">
+            <h3>No items found</h3>
+            <p>Try adjusting your filters or search terms</p>
+        </div>
+    <% } %>
+</div>
+
+<script>
+    // Add smooth scrolling for filter chips
+    const filterContainer = document.querySelector('.filter-chips');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    filterContainer.addEventListener('mousedown', (e) => {
+        isDown = true;
+        startX = e.pageX - filterContainer.offsetLeft;
+        scrollLeft = filterContainer.scrollLeft;
+    });
+
+    filterContainer.addEventListener('mouseleave', () => {
+        isDown = false;
+    });
+
+    filterContainer.addEventListener('mouseup', () => {
+        isDown = false;
+    });
+
+    filterContainer.addEventListener('mousemove', (e) => {
+        if(!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - filterContainer.offsetLeft;
+        const walk = (x - startX) * 2;
+        filterContainer.scrollLeft = scrollLeft - walk;
+    });
+</script>
