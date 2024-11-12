@@ -19,8 +19,15 @@ const mapsConfig = require('./config/maps');
 const apiRoutes = require('./api/routes');
 const setupIndexes = require('./utils/setupDb');
 const multer = require('multer');
+require('dotenv').config();
+const cors = require('cors');
 
-const MONGO_URL = 'mongodb://127.0.0.1:27017/localmart';
+const MONGO_URL = process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017/localmart';
+
+// Add this near the top of your app.js
+process.noDeprecation = true;
+
+app.use(cors());
 
 main().then(async () => {
     console.log("connected to Database");
@@ -40,12 +47,13 @@ app.use(express.static(path.join(__dirname, "/public")));
 
 // Add session configuration before other middleware
 app.use(session({
-    secret: 'your-secret-key',
+    secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
+        secure: process.env.NODE_ENV === 'production',
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7
     }
 }));
@@ -258,9 +266,10 @@ app.delete("/listings/:id" , async(req,res) => {
 //     res.send("succesfull testing");
 // })
 
-app.listen(8080, () => {
-    console.log("LocalMart server is listening on port 8080");
-})
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+    console.log(`LocalMart server is listening on port ${PORT}`);
+});
 
 // Add Socket.IO connection handling
 io.on('connection', (socket) => {
@@ -359,3 +368,14 @@ app.use((err, req, res, next) => {
 
 // Add after other middleware
 app.use('/api', apiRoutes);
+
+// Add at the end of app.js
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).render('error', {
+        message: process.env.NODE_ENV === 'production' 
+            ? 'Something went wrong!' 
+            : err.message,
+        error: process.env.NODE_ENV === 'production' ? {} : err
+    });
+});

@@ -4,6 +4,10 @@ package-lock.json
 
 # Environment variables
 .env
+.env.local
+.env.development
+.env.test
+.env.production
 
 # Logs
 logs
@@ -31,10 +35,6 @@ pids
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-.env.test
-
 # IDE files
 .idea/
 .vscode/
@@ -43,3 +43,13 @@ pids
 
 # Uploads directory
 public/uploads/*
+!public/uploads/.gitkeep
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
