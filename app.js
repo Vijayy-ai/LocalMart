@@ -185,40 +185,26 @@ app.get("/listings/:id", async (req, res) => {
 // Create Route
 app.post("/listings", upload.array('image', 5), async(req, res) => {
     try {
-        // Create a copy of the listing data
-        const listingData = { ...req.body.listing };
+        console.log('Uploaded files:', req.files);
         
-        // Convert price to a positive number
+        const listingData = { ...req.body.listing };
         listingData.price = Math.max(0, parseInt(listingData.price) || 0);
-
-        // Set default values
         listingData.status = 'available';
+        
         if (!listingData.expiryDate) {
             listingData.expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         }
 
-        // Handle bundle data
-        if (listingData.bundle) {
-            listingData.bundle = {
-                isBundle: listingData.bundle.isBundle === 'true',
-                items: listingData.bundle.items || [],
-                bundleDiscount: parseFloat(listingData.bundle.bundleDiscount) || 0
-            };
-        }
-
-        // Handle negotiable checkbox
-        listingData.negotiable = listingData.negotiable === 'true';
-
-        // Create new listing
         const newListing = new Listing(listingData);
         
-        // Handle images
+        // Handle images using Cloudinary URLs
         if (req.files && req.files.length > 0) {
-            newListing.images = req.files.map(f => ({
-                url: `/uploads/${f.filename}`,
-                filename: f.filename
+            console.log('Processing files:', req.files);
+            newListing.images = req.files.map(file => ({
+                url: file.path,
+                filename: file.filename
             }));
-            newListing.image = `/uploads/${req.files[0].filename}`;
+            newListing.image = req.files[0].path;
         }
 
         await newListing.save();
@@ -226,7 +212,7 @@ app.post("/listings", upload.array('image', 5), async(req, res) => {
         res.redirect("/listings");
     } catch (err) {
         console.error('Error creating listing:', err);
-        req.flash('error', 'Error creating listing. Please check all fields.');
+        req.flash('error', 'Error creating listing: ' + err.message);
         res.redirect("/listings/new");
     }
 });

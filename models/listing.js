@@ -13,8 +13,8 @@ const listingSchema = new Schema({
     },
     image: {
         type: String,
-        default: "https://images.unsplash.com/photo-1553531384-cc64ac80f931",
-        set: (v) => v === "" ? "https://images.unsplash.com/photo-1553531384-cc64ac80f931" : v,
+        default: "https://res.cloudinary.com/dbxbzgwk7/image/upload/v1/LocalMart/default",
+        set: (v) => v === "" ? "https://res.cloudinary.com/dbxbzgwk7/image/upload/v1/LocalMart/default" : v,
     },
     price: {
         type: Number,
